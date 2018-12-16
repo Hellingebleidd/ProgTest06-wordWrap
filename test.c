@@ -13,14 +13,18 @@ char *wordWrap(int width,
     int odsek = 0, moznoOdsek = 0;  /*default FALSE*/
     int dlzkaRiadku = 0, dlzkaSlova, i;
 
-    if (strlen(src) == 0)   /*prazdny retazec*/
-        return (char *) calloc(1, sizeof(char));
+    if (strlen(src) == 0) {
+        /*prazdny retazec*/
+        vystup= (char *) malloc(sizeof(char));
+        *vystup=0;
+        return vystup;
+    }
 
     /*init*/
     tmpSrc = (char *) src;
-    vystup = (char *) calloc(strlen(src) + 1, sizeof(char)); /*pre istotu +1, ak by vstup nemal \n*/
+    vystup = (char *) malloc((strlen(src) + 1)* sizeof(char)); /*pre istotu +1, ak by vstup nemal \n*/
     tmpVystup = vystup;
-    slovo = (char *) calloc((size_t) width + 1, sizeof(char)); /*jedno slovo nemoze byt dlhsie ako riadok*/
+    slovo = (char *) malloc(((size_t) width + 1) * sizeof(char)); /*jedno slovo nemoze byt dlhsie ako riadok*/
     tmpSlovo = slovo;   /*nastavim smernik na zaciatok*/
     dlzkaSlova = 0;
 
@@ -40,16 +44,14 @@ char *wordWrap(int width,
             if (*tmpSrc == '\n')
                 moznoOdsek = 1;
 
-        } else if (*tmpSrc != ' ' && *tmpSrc != '\t' && *tmpSrc != '\n') {
+        } else if (*tmpSrc != ' ' && *tmpSrc != '\t' && *tmpSrc != '\n' && *tmpSrc != 0) {
             /*pridavam pismekna slova*/
             if (moznoOdsek) moznoOdsek = 0;
             if (odsek) {
-                if (*(tmpSrc + 1) != 0) {
                     *tmpVystup++ = '\n'; /*treba zariadkovat vystup 2x */
                     *tmpVystup++ = '\n';
                     dlzkaRiadku = 0;
                     odsek = 0;
-                }
             }
             if (++dlzkaSlova > width) {     /*koniec s chybou*/
                 free(vystup);
@@ -58,7 +60,7 @@ char *wordWrap(int width,
             }
             *tmpSlovo++ = *tmpSrc;
 
-            if (1 + dlzkaSlova + dlzkaRiadku > width) {
+            if (1 + dlzkaSlova + dlzkaRiadku > width && dlzkaRiadku>0) {
                 *tmpVystup++ = '\n'; /*treba zariadkovat vystup*/
                 dlzkaRiadku = 0;
             }
@@ -75,11 +77,10 @@ char *wordWrap(int width,
         }
 
     } while (*tmpSrc++ != 0);    /*kym nieje koniec*/
-    if (dlzkaRiadku > 0)
+    if (*(tmpVystup-1)!='\n')
         *tmpVystup++ = '\n'; /*treba zariadkovat vystup*/
-
+    *tmpVystup=0;
     free(slovo);
-/*    printf("%s_____\n", vystup);*/
     return vystup;
 }
 
@@ -126,7 +127,15 @@ int                main                                     ( void )
             "turpis. Mauris malesuada nisi sed enim. In hac habitasse platea dictumst.\n"
             "Fusce    faucibus, turpis nec auctor posuere, nulla tellus scelerisque metus,\n"
             "quis molestie mi dui id quam. Mauris vestibulum. Nam ullamcorper.\n"
-            "\n";
+            "\n\n\n\n\n";
+    const char * s2 = "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghij\n"
+                      "abcdefghijabcdefghijabcdefghijabcdefghijabcdefghij\tabcdefghijabcdefghijabcdefghijabcdefghijabcdefghij\n";
+
+
+    res = wordWrap ( 50, s2 );
+    printf("____\n%s_____\n", res);
+    free ( res );
+
     res = wordWrap ( 40, s0 );
     assert ( ! strcmp ( res,
                         "Lorem ipsum dolor sit amet, consectetuer\n"
@@ -240,7 +249,7 @@ int                main                                     ( void )
                         "turpis nec auctor posuere, nulla tellus scelerisque metus, quis molestie mi dui\n"
                         "id quam. Mauris vestibulum. Nam ullamcorper.\n" ) );
     free ( res );
-
+printf("alles gute\n");
     return 0;
 }
 #endif /* __PROGTEST__ */
