@@ -17,6 +17,7 @@ char *wordWrap(int width,
 
     if (strlen(src) == 0)   /*prazdny retazec*/
         return calloc(1, sizeof(char));
+
     /*init*/
     tmpSrc = (char *) src;
     vystup = (char *) calloc(strlen(src) + 1, sizeof(char)); /*pre istotu +1, ak by vstup nemal \n*/
