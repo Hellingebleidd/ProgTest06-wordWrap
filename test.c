@@ -45,10 +45,12 @@ char *wordWrap(int width,
             /*pridavam pismekna slova*/
             if (moznoOdsek) moznoOdsek = 0;
             if (odsek) {
-                *tmpVystup++ = '\n'; /*treba zariadkovat vystup 2x */
-                *tmpVystup++ = '\n';
-                dlzkaRiadku = 0;
-                odsek = 0;
+                if (*(tmpSrc + 1) != 0) {
+                    *tmpVystup++ = '\n'; /*treba zariadkovat vystup 2x */
+                    *tmpVystup++ = '\n';
+                    dlzkaRiadku = 0;
+                    odsek = 0;
+                }
             }
             if (++dlzkaSlova > width) {     /*koniec s chybou*/
                 free(vystup);
@@ -66,7 +68,11 @@ char *wordWrap(int width,
             odsek = 1;  /*odsek*/
 
         } else {
-            if (*tmpSrc == '\n') moznoOdsek = 1; else moznoOdsek = 0;
+            if (*tmpSrc == '\n' && tmpVystup!=vystup)
+                /*ignoruj odseky na zaciatku textu*/
+                moznoOdsek = 1;
+            else
+                moznoOdsek = 0;
         }
 
     } while (*tmpSrc++ != 0);    /*kym nieje koniec*/
@@ -74,6 +80,7 @@ char *wordWrap(int width,
         *tmpVystup++ = '\n'; /*treba zariadkovat vystup*/
 
     free(slovo);
+/*    printf("%s_____\n", vystup);*/
     return vystup;
 }
 
